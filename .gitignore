@@ -221,3 +221,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project data (rebuild with the ingest script)
+data/raw/
+data/chunks.jsonl
+*.faiss
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
