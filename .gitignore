@@ -224,6 +224,7 @@ __marimo__/
 
 # Project data (rebuild with the ingest script)
 data/raw/
+data/sections.jsonl
 data/chunks.jsonl
 *.faiss
 

@@ -1,0 +1,16 @@
+[project]
+name = "docsqa"
+version = "0.1.0"
+description = "Cited-answer RAG assistant over the scikit-learn and pandas User Guides"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
