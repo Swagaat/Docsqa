@@ -74,6 +74,12 @@ def _role_text(match: re.Match) -> str:
     labelled = re.match(r"^(.*?)\s*<[^>]+>$", content, flags=re.DOTALL)
     if labelled and labelled.group(1):
         return labelled.group(1)
+    # Example-gallery links have no shown text, only an internal name:
+    # sphx_glr_auto_examples_model_selection_plot_grid_search.py -> example: grid search
+    if content.startswith("sphx_glr_"):
+        name = content.removesuffix(".py").split("_plot_")[-1]
+        name = name.removeprefix("sphx_glr_auto_examples_")
+        return "example: " + name.replace("_", " ").strip()
     # :class:`~sklearn.impute.SimpleImputer` -> SimpleImputer
     if content.startswith("~"):
         return content[1:].split(".")[-1]
