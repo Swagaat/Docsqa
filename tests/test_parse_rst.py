@@ -57,6 +57,10 @@ def test_clean_inline_roles_and_links():
     assert clean_inline("`docs <https://x.org>`_") == "docs"
     assert clean_inline("``fit``") == "`fit`"
     assert clean_inline("see [3]_") == "see [3]"
+    assert (
+        clean_inline(":ref:`sphx_glr_auto_examples_model_selection_plot_grid_search_digits.py`")
+        == "example: grid search digits"
+    )
 
 
 def test_clean_body_drops_figures_and_keeps_code():

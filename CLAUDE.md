@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-DocsQA: a RAG assistant that gives answers with citations, built over the scikit-learn and pandas documentation. The project is at an early stage. The Phase 0 scaffold and the Phase 1 `.rst` parser (`ingest/parse_rst.py`) exist. No chunker, retriever, LLM call or UI has been written yet, so don't describe any of them as existing.
+DocsQA: a RAG assistant that gives answers with citations, built over the scikit-learn and pandas documentation. The project is at an early stage. The Phase 0 scaffold and the Phase 1 ingest pipeline exist: the `.rst` parser (`ingest/parse_rst.py`) and the chunker (`ingest/chunk.py`). No retriever, embeddings, LLM call or UI has been written yet, so don't describe any of them as existing.
 
 ## Commands
 
@@ -22,6 +22,7 @@ ruff check .                       # lint
 ruff format .                      # format
 
 python -m ingest.parse_rst         # parse docs -> data/sections.jsonl
+python -m ingest.chunk             # sections -> data/chunks.jsonl (run parse_rst first)
 ```
 
 The pytest and ruff settings are in `pyproject.toml`. Ruff excludes `data/`.
@@ -30,7 +31,7 @@ The pytest and ruff settings are in `pyproject.toml`. Ruff excludes `data/`.
 
 The top-level packages map to the stages of the RAG pipeline. Apart from `ingest/`, they are still empty:
 
-- `ingest/`: `parse_rst.py` splits each User Guide page at its headings into `Section` records (library, doc_path, heading path, citation URL, cleaned text) and writes them to `data/sections.jsonl`. It uses regexes rather than docutils or Sphinx, because Sphinx-only roles and directives would break a plain docutils parse. Heading levels come from the order in which each underline style first appears in a file. The URL anchors are slugs of the heading titles, so they approximate Sphinx's ids rather than matching them exactly. Chunking comes next, and `.gitignore` expects its output to go to `data/chunks.jsonl`.
+- `ingest/`: `parse_rst.py` splits each User Guide page at its headings into `Section` records (library, doc_path, heading path, citation URL, cleaned text) and writes them to `data/sections.jsonl`. It uses regexes rather than docutils or Sphinx, because Sphinx-only roles and directives would break a plain docutils parse. Heading levels come from the order in which each underline style first appears in a file. The URL anchors are slugs of the heading titles, so they approximate Sphinx's ids rather than matching them exactly. `chunk.py` turns sections into retrieval chunks in `data/chunks.jsonl`. A section stays whole if its body fits in 400 words. Longer sections are split at blank lines with about 60 words of paragraph overlap, so code blocks stay whole. Every chunk's text starts with a `library > heading > subheading` line and keeps its section's URL. Sizes are counted in words, not tokens, so no tokenizer is needed. Chunk ids (`library/page/NNNN`) are numbered in order within each page, so they change whenever the docs or the chunking settings change.
 - `retrieval/`: build and query an index over the chunks. `.gitignore` ignores `*.faiss`, which implies a FAISS index.
 - `app/`: the question-answering entry point, which produces cited answers.
 - `eval/`: retrieval and answer quality evaluation.
